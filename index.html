@@ -1,0 +1,1154 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="description" content="Memory Forcing: Spatio-Temporal Memory for Consistent Scene Generation on Minecraft">
+    <meta property="og:title" content="Memory Forcing"/>
+    <meta property="og:description" content="Spatio-Temporal Memory for Consistent Scene Generation on Minecraft"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <title>Memory Forcing: Spatio-Temporal Memory for Consistent Scene Generation on Minecraft</title>
+    <link rel="icon" type="image/x-icon" href="static/images/favicon.ico">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Orbitron:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+    
+    <style>
+        .ai {
+            font-family: 'Academicons';
+            font-weight: 400;
+            display: inline-block;
+            font-style: normal;
+            font-variant: normal;
+            text-rendering: auto;
+            line-height: 1;
+        }
+        
+        .ai-arxiv:before { 
+            content: "\e974"; 
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            color: #ffffff;
+            background-color: #000000;
+            overflow-x: hidden;
+        }
+        
+        /* Hero Section with Video Grid */
+        .hero-section {
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        
+        .video-grid {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            grid-template-rows: repeat(8, 1fr);
+            z-index: 1;
+            transform: scale(2);
+            transform-origin: center center;
+            animation: zoomOut 10s ease-in-out forwards;
+        }
+        
+        @keyframes zoomOut {
+            0%, 60% { 
+                transform: scale(2); 
+            }
+            100% { 
+                transform: scale(1); 
+            }
+        }
+        
+        .video-cell {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .video-cell video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 1;
+            transition: opacity 0.1s ease;
+        }
+        
+        .video-cell:hover video {
+            opacity: 0.8;
+        }
+        
+        /* Center 4x4 videos (demo1-16) - positions 19-22, 27-30, 35-38, 43-46 in 8x8 grid */
+        .video-cell:nth-child(n+19):nth-child(-n+22),
+        .video-cell:nth-child(n+27):nth-child(-n+30),
+        .video-cell:nth-child(n+35):nth-child(-n+38),
+        .video-cell:nth-child(n+43):nth-child(-n+46) {
+            z-index: 10;
+        }
+        
+        /* Overlay for better text readability */
+        .hero-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                135deg,
+                rgba(0, 0, 0, 0.75) 0%,
+                rgba(0, 0, 0, 0.6) 50%,
+                rgba(0, 0, 0, 0.75) 100%
+            );
+            z-index: 2;
+        }
+        
+        /* Hero Content */
+        .hero-content {
+            position: relative;
+            z-index: 3;
+            text-align: center;
+            max-width: 1200px;
+            padding: 0 2rem;
+            animation: fadeInUp 1s ease-out;
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .hero-title {
+            margin-bottom: 2rem;
+        }
+        
+        .main-title {
+            font-family: 'Press Start 2P', monospace;
+            font-size: clamp(2.5rem, 5vw, 4.5rem);
+            font-weight: normal;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(45deg, 
+                #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, 
+                #feca57, #ff9ff3, #54a0ff, #5f27cd);
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1.2;
+            letter-spacing: 0.05em;
+            animation: gradientShift 3s ease-in-out infinite;
+            text-shadow: 0 0 20px rgba(255, 107, 107, 0.3);
+        }
+        
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+        
+        .subtitle {
+            font-family: 'Orbitron', sans-serif;
+            font-size: clamp(1rem, 2.5vw, 1.6rem);
+            font-weight: 600;
+            color: #e8e8e8;
+            line-height: 1.3;
+            letter-spacing: 0.02em;
+        }
+        
+        .hero-subtitle {
+            font-size: 1.2rem;
+            color: #cccccc;
+            margin-bottom: 2rem;
+            font-weight: 300;
+        }
+        
+        .authors {
+            margin-bottom: 1.5rem;
+        }
+        
+        .author-row {
+            margin-bottom: 0.5rem;
+        }
+        
+        .author-link {
+            color: #ffffff;
+            text-decoration: none;
+            margin: 0 0.5rem;
+            transition: color 0.3s ease;
+            font-weight: 500;
+        }
+        
+        .author-link:hover {
+            color: #4fc3f7;
+        }
+        
+        .affiliations {
+            font-size: 0.9rem;
+            color: #ffffff;
+            margin-bottom: 2rem;
+            line-height: 1.8;
+        }
+        
+        .links {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .link-button {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.75rem 1.5rem;
+            background: rgba(255, 255, 255, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50px;
+            color: #000000 !important;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .link-button:hover {
+            background: rgba(255, 255, 255, 1);
+            border-color: rgba(255, 255, 255, 0.5);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 255, 255, 0.2);
+            color: #000000 !important;
+        }
+        
+        .link-button i {
+            margin-right: 0.5rem;
+            font-size: 1.1rem;
+            color: #000000 !important;
+        }
+        
+        /* Content Sections */
+        .content-section {
+            padding: 4rem 0;
+            background: #000000;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+        
+        .section-title {
+            font-family: 'Source Sans Pro', 'Orbitron', sans-serif;
+            font-size: 3rem;
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 3rem;
+            color: #ffffff;
+            letter-spacing: 0.02em;
+        }
+        
+        .content-text {
+            font-family: 'Source Sans Pro', 'Inter', sans-serif;
+            font-size: 1.2rem;
+            line-height: 1.75;
+            color: #e8e8e8;
+            margin-bottom: 2rem;
+            font-weight: 400;
+            letter-spacing: 0.01em;
+        }
+        
+        .method-image {
+            width: 100%;
+            border-radius: 12px;
+            margin: 2rem 0;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+        
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin: 3rem 0;
+        }
+        
+        .result-item {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: transform 0.3s ease;
+        }
+        
+        .result-item:hover {
+            transform: translateY(-5px);
+        }
+        
+        .result-item img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+        
+        /* Video Carousel */
+        .comparison-section {
+            text-align: center;
+            margin: 3rem 0;
+        }
+        
+        .comparison-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2rem;
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 2rem;
+            letter-spacing: 0.02em;
+        }
+        
+        .video-carousel-wrapper {
+            position: relative;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 80px; /* Space for navigation arrows */
+        }
+        
+        .video-carousel {
+            position: relative;
+            border-radius: 12px;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.05);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+        
+        .video-container {
+            position: relative;
+            width: 100%;
+            height: 0;
+            padding-bottom: 56.25%; /* 16:9 aspect ratio */
+            overflow: hidden;
+        }
+        
+        .video-slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+        }
+        
+        .video-slide.active {
+            opacity: 1;
+        }
+        
+        .video-slide video {
+            width: 100%;
+            height: 100%;
+            object-fit: contain; /* Changed from cover to contain to show full video */
+            background: #000000;
+        }
+        
+        .carousel-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0, 0, 0, 0.7);
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-radius: 50%;
+            z-index: 10;
+        }
+        
+        .carousel-nav:hover {
+            background: rgba(0, 0, 0, 0.9);
+            transform: translateY(-50%) scale(1.1);
+        }
+        
+        .carousel-nav.prev {
+            left: -60px;
+        }
+        
+        .carousel-nav.next {
+            right: -60px;
+        }
+        
+        .carousel-indicators {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 1.5rem; /* Moved outside the video container */
+        }
+        
+        .indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .indicator.active {
+            background: white;
+            transform: scale(1.2);
+        }
+
+        /* Long-term Memory Section Styles */
+        .memory-section {
+            background: #000000;
+            padding: 4rem 0;
+        }
+
+        .memory-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .memory-section-title {
+            font-family: 'Source Sans Pro', 'Orbitron', sans-serif;
+            font-size: 3rem;
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 1rem;
+            color: #ffffff;
+            letter-spacing: 0.02em;
+        }
+
+        .memory-subtitle {
+            text-align: center;
+            font-size: 1.2rem;
+            color: #cccccc;
+            margin-bottom: 3rem;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            font-weight: 300;
+        }
+
+        .memory-video-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .memory-video-pair {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .memory-video-pair:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .memory-pair-number {
+            text-align: center;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .memory-video-container {
+            margin-bottom: 1rem;
+        }
+
+        .memory-video-container:last-child {
+            margin-bottom: 0;
+        }
+
+        .memory-video-label {
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            padding: 0.4rem 0.8rem;
+            border-radius: 6px;
+            text-align: center;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .memory-gt-label {
+            background-color: rgba(76, 175, 80, 0.2);
+            color: #81c784;
+            border: 1px solid rgba(76, 175, 80, 0.3);
+        }
+
+        .memory-output-label {
+            background-color: rgba(33, 150, 243, 0.2);
+            color: #64b5f6;
+            border: 1px solid rgba(33, 150, 243, 0.3);
+        }
+
+        .memory-video {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+            background: #111111;
+            pointer-events: none; /* 禁用视频的默认点击事件 */
+        }
+
+        .memory-video:hover {
+            border-color: rgba(255, 255, 255, 0.3);
+            box-shadow: 0 4px 15px rgba(255, 255, 255, 0.1);
+        }
+
+        .memory-controls-hint {
+            text-align: center;
+            color: #888888;
+            font-size: 0.9rem;
+            margin-top: 2rem;
+            font-style: italic;
+        }
+        
+        /* Citation Section */
+        .citation-section {
+            background: rgba(255, 255, 255, 0.03);
+            padding: 3rem 0;
+        }
+        
+        .citation-code {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 1.5rem;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.9rem;
+            color: #e0e0e0;
+            overflow-x: auto;
+            white-space: pre;
+        }
+        
+        /* Footer */
+        .footer {
+            background: rgba(255, 255, 255, 0.02);
+            padding: 2rem 0;
+            text-align: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .footer p {
+            color: #888888;
+            font-size: 0.9rem;
+        }
+        
+        .footer a {
+            color: #4fc3f7;
+            text-decoration: none;
+        }
+        
+        .footer a:hover {
+            text-decoration: underline;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .video-grid {
+                grid-template-columns: repeat(4, 1fr);
+                grid-template-rows: repeat(4, 1fr);
+                animation: zoomOutMobile 10s ease-in-out forwards;
+            }
+            
+            @keyframes zoomOutMobile {
+                0%, 60% { 
+                    transform: scale(1.5); 
+                }
+                100% { 
+                    transform: scale(1); 
+                }
+            }
+            
+            .hero-content {
+                padding: 0 1rem;
+            }
+            
+            .main-title {
+                font-size: clamp(1.5rem, 6vw, 2.5rem);
+                margin-bottom: 1.2rem;
+            }
+            
+            .subtitle {
+                font-size: clamp(0.8rem, 3.5vw, 1.2rem);
+            }
+            
+            .links {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .link-button {
+                width: 200px;
+                justify-content: center;
+            }
+            
+            .video-carousel-wrapper {
+                padding: 0 60px;
+            }
+            
+            .carousel-nav {
+                font-size: 1.2rem;
+                padding: 0.5rem 0.75rem;
+            }
+            
+            .carousel-nav.prev {
+                left: -45px;
+            }
+            
+            .carousel-nav.next {
+                right: -45px;
+            }
+
+            .memory-video-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1.5rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .video-carousel-wrapper {
+                padding: 0 40px;
+            }
+            
+            .carousel-nav.prev {
+                left: -35px;
+            }
+            
+            .carousel-nav.next {
+                right: -35px;
+            }
+
+            .memory-video-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .memory-container {
+                padding: 0 1rem;
+            }
+
+            .memory-section-title {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Hero Section with Video Grid Background -->
+    <section class="hero-section">
+        <!-- Video Grid Background -->
+        <div class="video-grid">
+            <!-- Generate 64 video cells (8x8) -->
+            <!-- Row 1 -->
+            <div class="video-cell"><video autoplay muted loop><source src="static/videos/demo17.mp4" type="video/mp4"></video></div>
+            <div class="video-cell"><video autoplay muted loop><source src="static/videos/demo18.mp4" type="video/mp4"></video></div>
+            <div class="video-cell"><video autoplay muted loop><source src="static/videos/demo19.mp4" type="video/mp4"></video></div>
+            <div class="video-cell"><video autoplay muted loop><source src="static/videos/demo20.mp4" type="video/mp4"></video></div>
+            <div class="video-cell"><video autoplay muted loop><source src="static/videos/demo21.mp4" type="video/mp4"></video></div>
+            <div class="video-cell"><video autoplay muted loop><source src="static/videos/demo22.mp4" type="video/mp4"></video></div>
+            <div class="video-cell"><video autoplay muted loop><source src="static/videos/demo23.mp4" type="video/mp4"></video></div>
+            <div class="video-cell"><video autoplay muted loop><source src="static/videos/demo24.mp4" type="video/mp4"></video></div>
+            
+            <!-- Row 2 -->
+            <div class="video-cell"><video autoplay muted loop><source src="static/videos/demo25.mp4" type="video/mp4"></video></div>
+            <div class="video-cell"><video autoplay muted loop><source src="static/videos/demo26.mp4" type="video/mp4"></video></div>
+            <div class="video-cell"><video autoplay muted loop><source src="static/videos/demo27.mp4" type="video/mp4"></video></div>
+            <div class="video-cell"><video autoplay muted loop><source src="static/videos/demo28.mp4" type="video/mp4"></video></div>
+            <div class="video-cell"><video autoplay muted loop><source src="static/videos/demo29.mp4" type="video/mp4"></video></div>
+            <div class="video-cell"><video autoplay muted loop><source src="static/videos/demo30.mp4" type="video/mp4"></video></div>
+            <div class="video-cell"><video autoplay muted loop><source src="static/videos/demo31.mp4" type="video/mp4"></video></div>
+            <div class="video-cell"><video autoplay muted loop><source src="static/videos/demo32.mp4" type="video/mp4"></video></div>
+            
+            <!-- Row 3 -->
+            <div class="video-cell"><video autoplay muted loop><source src="static/videos/demo33.mp4" type="video/mp4"></video></div>
+            <div class="video-cell"><video autoplay muted loop><source src="static/videos/demo34.mp4" type="video/mp4"></video></div>
+            <!-- Center 4x4 starts here (demo1-16) -->
+            <div class="video-cell"><video autoplay muted loop><source src="static/videos/demo1.mp4" type="video/mp4"></video></div>
+            <div class="video-cell"><video autoplay muted loop><source src="static/videos/demo2.mp4" type="video/mp4"></video></div>
+            <div class="video-cell"><video autoplay muted loop><source src="static/videos/demo3.mp4" type="video/mp4"></video></div>
+            <div class="video-cell"><video autoplay muted loop><source src="static/videos/demo4.mp4" type="video/mp4"></video></div>
+            <div class="video-cell"><video autoplay muted loop><source src="static/videos/demo35.mp4" type="video/mp4"></video></div>
+            <div class="video-cell"><video autoplay muted loop><source src="static/videos/demo36.mp4" type="video/mp4"></video></div>
+            
+            <!-- Row 4 -->
+            <div class="video-cell"><video autoplay muted loop><source src="static/videos/demo37.mp4" type="video/mp4"></video></div>
+            <div class="video-cell"><video autoplay muted loop><source src="static/videos/demo38.mp4" type="video/mp4"></video></div>
+            <div class="video-cell"><video autoplay muted loop><source src="static/videos/demo5.mp4" type="video/mp4"></video></div>
+            <div class="video-cell"><video autoplay muted loop><source src="static/videos/demo6.mp4" type="video/mp4"></video></div>
+            <div class="video-cell"><video autoplay muted loop><source src="static/videos/demo7.mp4" type="video/mp4"></video></div>
+            <div class="video-cell"><video autoplay muted loop><source src="static/videos/demo8.mp4" type="video/mp4"></video></div>
+            <div class="video-cell"><video autoplay muted loop><source src="static/videos/demo39.mp4" type="video/mp4"></video></div>
+            <div class="video-cell"><video autoplay muted loop><source src="static/videos/demo40.mp4" type="video/mp4"></video></div>
+            
+            <!-- Row 5 -->
+            <div class="video-cell"><video autoplay muted loop><source src="static/videos/demo41.mp4" type="video/mp4"></video></div>
+            <div class="video-cell"><video autoplay muted loop><source src="static/videos/demo42.mp4" type="video/mp4"></video></div>
+            <div class="video-cell"><video autoplay muted loop><source src="static/videos/demo9.mp4" type="video/mp4"></video></div>
+            <div class="video-cell"><video autoplay muted loop><source src="static/videos/demo10.mp4" type="video/mp4"></video></div>
+            <div class="video-cell"><video autoplay muted loop><source src="static/videos/demo11.mp4" type="video/mp4"></video></div>
+            <div class="video-cell"><video autoplay muted loop><source src="static/videos/demo12.mp4" type="video/mp4"></video></div>
+            <div class="video-cell"><video autoplay muted loop><source src="static/videos/demo43.mp4" type="video/mp4"></video></div>
+            <div class="video-cell"><video autoplay muted loop><source src="static/videos/demo44.mp4" type="video/mp4"></video></div>
+            
+            <!-- Row 6 -->
+            <div class="video-cell"><video autoplay muted loop><source src="static/videos/demo45.mp4" type="video/mp4"></video></div>
+            <div class="video-cell"><video autoplay muted loop><source src="static/videos/demo46.mp4" type="video/mp4"></video></div>
+            <div class="video-cell"><video autoplay muted loop><source src="static/videos/demo13.mp4" type="video/mp4"></video></div>
+            <div class="video-cell"><video autoplay muted loop><source src="static/videos/demo14.mp4" type="video/mp4"></video></div>
+            <div class="video-cell"><video autoplay muted loop><source src="static/videos/demo15.mp4" type="video/mp4"></video></div>
+            <div class="video-cell"><video autoplay muted loop><source src="static/videos/demo16.mp4" type="video/mp4"></video></div>
+            <!-- Center 4x4 ends here -->
+            <div class="video-cell"><video autoplay muted loop><source src="static/videos/demo47.mp4" type="video/mp4"></video></div>
+            <div class="video-cell"><video autoplay muted loop><source src="static/videos/demo48.mp4" type="video/mp4"></video></div>
+            
+            <!-- Row 7 -->
+            <div class="video-cell"><video autoplay muted loop><source src="static/videos/demo49.mp4" type="video/mp4"></video></div>
+            <div class="video-cell"><video autoplay muted loop><source src="static/videos/demo50.mp4" type="video/mp4"></video></div>
+            <div class="video-cell"><video autoplay muted loop><source src="static/videos/demo51.mp4" type="video/mp4"></video></div>
+            <div class="video-cell"><video autoplay muted loop><source src="static/videos/demo52.mp4" type="video/mp4"></video></div>
+            <div class="video-cell"><video autoplay muted loop><source src="static/videos/demo53.mp4" type="video/mp4"></video></div>
+            <div class="video-cell"><video autoplay muted loop><source src="static/videos/demo54.mp4" type="video/mp4"></video></div>
+            <div class="video-cell"><video autoplay muted loop><source src="static/videos/demo55.mp4" type="video/mp4"></video></div>
+            <div class="video-cell"><video autoplay muted loop><source src="static/videos/demo56.mp4" type="video/mp4"></video></div>
+            
+            <!-- Row 8 -->
+            <div class="video-cell"><video autoplay muted loop><source src="static/videos/demo57.mp4" type="video/mp4"></video></div>
+            <div class="video-cell"><video autoplay muted loop><source src="static/videos/demo58.mp4" type="video/mp4"></video></div>
+            <div class="video-cell"><video autoplay muted loop><source src="static/videos/demo59.mp4" type="video/mp4"></video></div>
+            <div class="video-cell"><video autoplay muted loop><source src="static/videos/demo60.mp4" type="video/mp4"></video></div>
+            <div class="video-cell"><video autoplay muted loop><source src="static/videos/demo61.mp4" type="video/mp4"></video></div>
+            <div class="video-cell"><video autoplay muted loop><source src="static/videos/demo62.mp4" type="video/mp4"></video></div>
+            <div class="video-cell"><video autoplay muted loop><source src="static/videos/demo63.mp4" type="video/mp4"></video></div>
+            <div class="video-cell"><video autoplay muted loop><source src="static/videos/demo64.mp4" type="video/mp4"></video></div>
+        </div>
+        
+        <!-- Overlay -->
+        <div class="hero-overlay"></div>
+        
+        <!-- Hero Content -->
+        <div class="hero-content">
+            <div class="hero-title">
+                <h1 class="main-title">Memory Forcing</h1>
+                <h2 class="subtitle">Spatio-Temporal Memory for Consistent Scene Generation on Minecraft</h2>
+            </div>
+            
+            <!-- Authors -->
+            <div class="authors">
+                <div class="author-row">
+                    <a href="https://junchao-cs.github.io/Junchao_Huang_CV/" class="author-link">Junchao Huang<sup>1,2</sup></a>
+                    <a href="https://joyhuyy1412.github.io/" class="author-link">Xinting Hu<sup>3</sup></a>
+                    <a href="#" class="author-link">Boyao Han<sup>1</sup></a>
+                </div>
+                <div class="author-row">
+                    <a href="https://shishaoshuai.com/" class="author-link">Shaoshuai Shi<sup>4</sup></a>
+                    <a href="https://faculty.hitsz.edu.cn/zhuotaotian" class="author-link">Zhuotao Tian<sup>5</sup></a>
+                    <a href="https://www.microsoft.com/en-us/research/people/tianyuhe/" class="author-link">Tianyu He<sup>6</sup></a>
+                    <a href="https://llijiang.github.io/" class="author-link">Li Jiang<sup>1,2,†</sup></a>
+                </div>
+            </div>
+            
+            <!-- Affiliations -->
+            <div class="affiliations">
+                <sup>1</sup> The Chinese University of Hong Kong, Shenzhen &nbsp;&nbsp;
+                <sup>2</sup> Shenzhen Loop Area Institute &nbsp;&nbsp;
+                <sup>3</sup> The University of Hong Kong<br>
+                <sup>4</sup> Voyager Research, Didi Chuxing &nbsp;&nbsp;
+                <sup>5</sup> Harbin Institute of Technology, Shenzhen &nbsp;&nbsp;
+                <sup>6</sup> Microsoft Research<br>
+                <sup>†</sup> Corresponding Author
+            </div>
+
+            <!-- Links -->
+            <div class="links">
+                <a href="https://arxiv.org/pdf/2506.10507.pdf" class="link-button">
+                    <i class="fas fa-file-pdf"></i>
+                    Paper
+                </a>
+                <a href="https://github.com/Junchao-cs/MemoryForcing" class="link-button">
+                    <i class="fab fa-github"></i>
+                    Code
+                </a>
+                <a href="https://arxiv.org/abs/2506.10507" class="link-button">
+                    <i class="ai ai-arxiv"></i>
+                    arXiv
+                </a>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Abstract Section -->
+    <section class="content-section">
+        <div class="container">
+            <h2 class="section-title">Abstract</h2>
+            <p class="content-text">
+                Autoregressive video diffusion models have proved effective for world modeling and interactive scene generation, with Minecraft gameplay as a representative application. To faithfully simulate play, a model must generate natural content while exploring new scenes and preserve spatial consistency when revisiting explored areas. Under limited computation budgets, it must compress and exploit historical cues within a finite context window, which exposes a trade-off: 
+                Temporal-only memory lacks long-term spatial consistency, whereas adding spatial memory strengthens consistency but may degrade new scene generation quality when the model over-relies on insufficient spatial context.
+            </p>
+            <p class="content-text">
+                We present <strong>Memory Forcing</strong>, a learning framework that pairs training protocols with a geometry-indexed spatial memory. <strong>Hybrid Training</strong> exposes distinct gameplay regimes, 
+                guiding the model to rely on temporal memory during exploration and incorporate spatial memory for revisits.
+                <strong>Chained Forward Training</strong> extends autoregressive training with model rollouts, where chained predictions create larger pose variations and encourage reliance on spatial memory for maintaining consistency.
+                <strong>Point-to-Frame Retrieval</strong> efficiently retrieves history by mapping currently visible points to their source frames, while <strong>Incremental 3D Reconstruction</strong> maintains and updates an explicit 3D cache.
+                Extensive experiments demonstrate that Memory Forcing achieves superior long-term spatial consistency and generative quality across diverse environments, while maintaining computational efficiency for extended sequences.
+            </p>
+        </div>
+    </section>
+    
+    <!-- Existing Paradigms Section -->
+    <section class="content-section">
+        <div class="container">
+            <h2 class="section-title">Existing Paradigms</h2>
+            <img src="static/images/intro.png" alt="MemoryForcing Intro" class="method-image">
+            <p class="content-text">
+            In prior works, the allocation of memory manifests in two characteristic failure modes. Models that incorporate long-term spatial memory preserve consistency on revisits as shown in Figure (a) but fail in novel scenes exploration. Conversely, temporal-only models fail to maintain spatial consistency upon revisit as shown in Figure (b).
+            </p>
+        </div>
+    </section>
+
+    <!-- Method Section -->
+    <section class="content-section">
+        <div class="container">
+            <h2 class="section-title">Method</h2>
+            <img src="static/images/pipeline.png" alt="MemoryForcing Pipeline Overview" class="method-image">
+            <p class="content-text">
+                <strong>Memory Forcing Pipeline.</strong> Our framework combines spatial and temporal memory for video generation. 3D geometry is maintained through streaming reconstruction of key frames along the camera trajectory. During generation, Point-to-Frame Retrieval maps spatial context to historical frames, which are integrated with temporal memory and injected together via memory cross-attention in the DiT backbone. Chained Forward Training creates larger pose variations, encouraging the model to effectively utilize spatial memory for maintaining long-term geometric consistency.
+            </p>
+        </div>
+    </section>
+    
+    <!-- Results Section -->
+    <section class="content-section">
+        <div class="container">
+            <h2 class="section-title">Qualitative Comparison</h2>
+            
+            <!-- Comparison Video Carousel -->
+            <div class="comparison-section">
+                <!-- <h3 class="comparison-title">Comparison</h3> -->
+                <div class="video-carousel-wrapper">
+                    <div class="video-carousel">
+                        <div class="video-container">
+                            <div class="video-slide active">
+                                <video autoplay muted>
+                                    <source src="static/videos/video_demo_web1.mp4" type="video/mp4">
+                                </video>
+                            </div>
+                            <div class="video-slide">
+                                <video muted>
+                                    <source src="static/videos/video_demo_web2.mp4" type="video/mp4">
+                                </video>
+                            </div>
+                            <div class="video-slide">
+                                <video muted>
+                                    <source src="static/videos/video_demo_web3.mp4" type="video/mp4">
+                                </video>
+                            </div>
+                            <div class="video-slide">
+                                <video muted>
+                                    <source src="static/videos/video_demo_web4.mp4" type="video/mp4">
+                                </video>
+                            </div>
+                            <div class="video-slide">
+                                <video muted>
+                                    <source src="static/videos/video_demo_web5.mp4" type="video/mp4">
+                                </video>
+                            </div>
+                            <div class="video-slide">
+                                <video muted>
+                                    <source src="static/videos/video_demo_web6.mp4" type="video/mp4">
+                                </video>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Navigation Buttons - Now outside the video container -->
+                    <button class="carousel-nav prev" onclick="changeSlide(-1)">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <button class="carousel-nav next" onclick="changeSlide(1)">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                    
+                    <!-- Indicators - Now below the video -->
+                    <div class="carousel-indicators">
+                        <div class="indicator active" onclick="currentSlide(1)"></div>
+                        <div class="indicator" onclick="currentSlide(2)"></div>
+                        <div class="indicator" onclick="currentSlide(3)"></div>
+                        <div class="indicator" onclick="currentSlide(4)"></div>
+                        <div class="indicator" onclick="currentSlide(5)"></div>
+                        <div class="indicator" onclick="currentSlide(6)"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Long-term Memory Section -->
+    <section class="memory-section">
+        <div class="memory-container">
+            <h2 class="memory-section-title">Long-term Memory Performance</h2>
+            <p class="memory-subtitle">
+                Demonstration of model performance on long-term memory tasks, comparing Ground Truth and model output results.
+            </p>
+
+            <!-- 视频网格 -->
+            <div class="memory-video-grid" id="memoryVideoGrid">
+                <!-- 视频将通过JavaScript动态生成 -->
+            </div>
+
+            <div class="memory-controls-hint">
+                💡 Tip: All videos play synchronously in loops. Click to pause/play video pairs, double-click to restart from beginning.
+            </div>
+        </div>
+    </section>
+    
+    <!-- Citation Section -->
+    <section class="citation-section">
+        <div class="container">
+            <h2 class="section-title">BibTeX</h2>
+            <div class="citation-code">@article{huang2025memoryforcing,
+      title={Memory Forcing: Spatio-Temporal Memory for Consistent Scene Generation on Minecraft},
+      author={Huang, Junchao and Hu, Xinting and Han, Boyao and Shi, Shaoshuai and Tian, Zhuotao and He, Tianyu and Jiang, Li},
+      journal={arXiv preprint arXiv},
+      year={2025}
+    }</div>
+        </div>
+    </section>
+    
+    <!-- Footer -->
+    <!-- <footer class="footer">
+        <div class="container">
+            <p>
+                This page was built using the <a href="https://github.com/eliahuhorwitz/Academic-project-page-template" target="_blank">Academic Project Page Template</a> which was adopted from the <a href="https://nerfies.github.io" target="_blank">Nerfies</a> project page.
+                <br>This website is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/" target="_blank">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+            </p>
+        </div>
+    </footer> -->
+
+    <script>
+        // Stagger video loading for better performance
+        document.addEventListener('DOMContentLoaded', function() {
+            const videos = document.querySelectorAll('.video-cell video');
+            videos.forEach((video, index) => {
+                setTimeout(() => {
+                    video.play();
+                }, index * 50);
+            });
+
+            // 生成长期记忆视频网格
+            generateMemoryVideoGrid();
+            addMemoryVideoInteractions();
+        });
+
+        // Video carousel functionality
+        let currentSlideIndex = 0;
+        const slides = document.querySelectorAll('.video-slide');
+        const indicators = document.querySelectorAll('.indicator');
+        const totalSlides = slides.length;
+        let isAutoPlaying = true;
+
+        function showSlide(index) {
+            // Hide all slides and stop all videos
+            slides.forEach((slide, i) => {
+                slide.classList.remove('active');
+                const video = slide.querySelector('video');
+                video.pause();
+                video.currentTime = 0;
+            });
+
+            // Remove active class from all indicators
+            indicators.forEach(indicator => indicator.classList.remove('active'));
+
+            // Show current slide and play video
+            slides[index].classList.add('active');
+            indicators[index].classList.add('active');
+            const currentVideo = slides[index].querySelector('video');
+            currentVideo.playbackRate = 3.0; // 添加这行来设置2倍速播放
+            currentVideo.play();
+
+            currentSlideIndex = index;
+        }
+
+        function changeSlide(direction) {
+            isAutoPlaying = false; // Stop auto-playing when user manually changes
+            
+            currentSlideIndex += direction;
+            
+            if (currentSlideIndex >= totalSlides) {
+                currentSlideIndex = 0;
+            } else if (currentSlideIndex < 0) {
+                currentSlideIndex = totalSlides - 1;
+            }
+            
+            showSlide(currentSlideIndex);
+            
+            // Resume auto-playing after a delay
+            setTimeout(() => {
+                isAutoPlaying = true;
+            }, 3000);
+        }
+
+        function currentSlide(index) {
+            isAutoPlaying = false; // Stop auto-playing when user manually changes
+            showSlide(index - 1);
+            
+            // Resume auto-playing after a delay
+            setTimeout(() => {
+                isAutoPlaying = true;
+            }, 3000);
+        }
+
+        // Initialize carousel
+        showSlide(0);
+
+        // Auto-advance when video ends (only if auto-playing)
+        slides.forEach((slide, index) => {
+            const video = slide.querySelector('video');
+            video.addEventListener('ended', () => {
+                if (index === currentSlideIndex && isAutoPlaying) {
+                    currentSlideIndex++;
+                    if (currentSlideIndex >= totalSlides) {
+                        currentSlideIndex = 0;
+                    }
+                    showSlide(currentSlideIndex);
+                }
+            });
+        });
+
+        // Pause auto-playing when user hovers over carousel
+        const carousel = document.querySelector('.video-carousel-wrapper');
+        carousel.addEventListener('mouseenter', () => {
+            isAutoPlaying = false;
+        });
+
+        carousel.addEventListener('mouseleave', () => {
+            isAutoPlaying = true;
+        });
+
+        // 生成52对长期记忆视频（1-52）
+        function generateMemoryVideoGrid() {
+            const videoGrid = document.getElementById('memoryVideoGrid');
+            const basePath = 'static/memory_videos/';
+            
+            for (let i = 1; i <= 52; i++) {
+                const pairDiv = document.createElement('div');
+                pairDiv.className = 'memory-video-pair';
+                
+                pairDiv.innerHTML = `
+                    <div class="memory-pair-number">Sample ${i}</div>
+                    
+                    <div class="memory-video-container">
+                        <div class="memory-video-label memory-gt-label">Ground Truth</div>
+                        <video class="memory-video" autoplay muted loop preload="metadata">
+                            <source src="${basePath}${i}_GT.mp4" type="video/mp4">
+                            Your browser does not support video playback.
+                        </video>
+                    </div>
+                    
+                    <div class="memory-video-container">
+                        <div class="memory-video-label memory-output-label">Model Output</div>
+                        <video class="memory-video" autoplay muted loop preload="metadata">
+                            <source src="${basePath}${i}_output.mp4" type="video/mp4">
+                            Your browser does not support video playback.
+                        </video>
+                    </div>
+                `;
+                
+                videoGrid.appendChild(pairDiv);
+            }
+        }
+
+        // 添加长期记忆视频交互功能
+        function addMemoryVideoInteractions() {
+            // 等待DOM更新后再添加事件监听器
+            setTimeout(() => {
+                const memoryPairs = document.querySelectorAll('.memory-video-pair');
+                
+                memoryPairs.forEach(pair => {
+                    const videos = pair.querySelectorAll('.memory-video');
+                    const [gtVideo, outputVideo] = videos;
+                    
+                    // 单击事件：切换播放/暂停
+                    pair.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        
+                        // 检查当前状态（以GT视频为准）
+                        if (gtVideo.paused) {
+                            gtVideo.play();
+                            outputVideo.play();
+                        } else {
+                            gtVideo.pause();
+                            outputVideo.pause();
+                        }
+                    });
+                    
+                    // 双击事件：重新从头开始播放
+                    pair.addEventListener('dblclick', function(e) {
+                        e.preventDefault();
+                        
+                        gtVideo.currentTime = 0;
+                        outputVideo.currentTime = 0;
+                        gtVideo.play();
+                        outputVideo.play();
+                    });
+                    
+                    // 禁用视频的默认控件事件
+                    videos.forEach(video => {
+                        video.addEventListener('click', function(e) {
+                            e.stopPropagation();
+                            e.preventDefault();
+                        });
+                        
+                        // 错误处理
+                        video.addEventListener('error', function() {
+                            this.style.background = '#2c1810';
+                            this.style.display = 'flex';
+                            this.style.alignItems = 'center';
+                            this.style.justifyContent = 'center';
+                            this.innerHTML = '<div style="color: #ff6b6b; text-align: center; padding: 20px;">Video loading failed</div>';
+                        });
+                        
+                        // 自动播放
+                        video.addEventListener('loadeddata', function() {
+                            this.play();
+                        });
+                    });
+                });
+            }, 100);
+        }
+    </script>
+</body>
+</html>
